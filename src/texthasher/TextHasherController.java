@@ -3,10 +3,12 @@ package texthasher;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.TextArea;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Callback;
 
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -34,46 +36,8 @@ public class TextHasherController implements Initializable {
                 AlgorithmChoice.insecure("SHA-1"),
                 AlgorithmChoice.insecure("MD5")
         ));
-        algorithm.setButtonCell(new ListCell<AlgorithmChoice>() {
-            @Override
-            protected void updateItem(AlgorithmChoice item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item != null) {
-                    if (item != null) {
-                        if (item.secure) {
-                            setText(item.algorithm);
-                            setTextFill(Color.BLACK);
-                        } else {
-                            setText(item.algorithm + " (INSECURE)");
-                            setTextFill(Color.FIREBRICK);
-                        }
-                    }
-                }
-            }
-        });
-        algorithm.setCellFactory(new Callback<ListView<AlgorithmChoice>, ListCell<AlgorithmChoice>>() {
-            @Override
-            public ListCell<AlgorithmChoice> call(ListView<AlgorithmChoice> param) {
-                final ListCell<AlgorithmChoice> cell = new ListCell<AlgorithmChoice>() {
-                    @Override
-                    protected void updateItem(AlgorithmChoice item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-                            if (item.secure) {
-                                setText(item.algorithm);
-                                setTextFill(Color.BLACK);
-                            } else {
-                                setText(item.algorithm + " (INSECURE)");
-                                setTextFill(Color.FIREBRICK);
-                            }
-                        } else {
-                            setText("");
-                        }
-                    }
-                };
-                return cell;
-            }
-        });
+        algorithm.setButtonCell(new AlgorithmListCell());
+        algorithm.setCellFactory(param -> new AlgorithmListCell());
         input.textProperty().addListener((observable, oldValue, newValue) -> updateOutputText());
         algorithm.valueProperty().addListener((observable, oldValue, newValue) -> {
             hashDelegate.setAlgorithm(newValue.algorithm);
@@ -96,6 +60,24 @@ public class TextHasherController implements Initializable {
             hash = "";
         }
         output.setText(hash);
+    }
+
+    private static class AlgorithmListCell extends ListCell<AlgorithmChoice> {
+        @Override
+        protected void updateItem(AlgorithmChoice item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null) {
+                if (item.secure) {
+                    setText(item.algorithm);
+                    setTextFill(Color.BLACK);
+                } else {
+                    setText(item.algorithm + " (INSECURE)");
+                    setTextFill(Color.FIREBRICK);
+                }
+            } else {
+                setText("");
+            }
+        }
     }
 
     private static class AlgorithmChoice {
