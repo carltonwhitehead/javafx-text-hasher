@@ -1,12 +1,10 @@
 package texthasher;
 
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.converter.ByteStringConverter;
@@ -21,10 +19,13 @@ public class TextHasherController implements Initializable {
 
     @FXML private Label inputLabel;
     @FXML private TextArea input;
+    @FXML private ProgressIndicator progress;
     @FXML private ComboBox<AlgorithmChoice> algorithm;
     @FXML private ComboBox<OutputFormatChoice> outputFormat;
     @FXML private Label outputLabel;
     @FXML private TextArea output;
+
+    private GenerateHashTask generateHashTask;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -51,7 +52,7 @@ public class TextHasherController implements Initializable {
         outputFormat.setItems(FXCollections.observableArrayList(
                 new OutputFormatChoice(HashDelegate.OutputFormat.HexString, "Hex String"),
                 new OutputFormatChoice(HashDelegate.OutputFormat.Base64, "Base 64"),
-                new OutputFormatChoice(HashDelegate.OutputFormat.JavaFxByteStringConverter, ByteStringConverter.class.getCanonicalName())
+                new OutputFormatChoice(HashDelegate.OutputFormat.JavaFxByteStringConverter, ByteStringConverter.class.getSimpleName())
         ));
         outputFormat.setButtonCell(new OutputFormatListCell());
         outputFormat.setCellFactory(param -> new OutputFormatListCell());
@@ -70,14 +71,17 @@ public class TextHasherController implements Initializable {
         if (!shouldUpdateOutputText) {
             return;
         }
-        String hash;
-        try {
-            hash = hashDelegate.hash(input.getText());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            hash = "";
+        if (generateHashTask != null) {
+            generateHashTask.cancel();
         }
-        output.setText(hash);
+        generateHashTask = new GenerateHashTask(input.getText());
+        generateHashTask.valueProperty().addListener((observable, oldValue, newValue) -> {
+            output.setText(newValue);
+            progress.setVisible(false);
+            generateHashTask = null;
+        });
+        progress.setVisible(true);
+        new Thread(generateHashTask).start();
     }
 
     private static class AlgorithmListCell extends ListCell<AlgorithmChoice> {
@@ -137,6 +141,27 @@ public class TextHasherController implements Initializable {
         private OutputFormatChoice(HashDelegate.OutputFormat outputFormat, String label) {
             this.outputFormat = outputFormat;
             this.label = label;
+        }
+    }
+
+    private class GenerateHashTask extends Task<String> {
+
+        private final String input;
+
+        private GenerateHashTask(String input) {
+            this.input = input;
+        }
+
+        @Override
+        protected String call() throws Exception {
+            String hash;
+            try {
+                hash = hashDelegate.hash(input);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+                hash = "";
+            }
+            return hash;
         }
     }
 }
