@@ -9,6 +9,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.TextArea;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.converter.ByteStringConverter;
 
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -21,6 +22,7 @@ public class TextHasherController implements Initializable {
     @FXML private Label inputLabel;
     @FXML private TextArea input;
     @FXML private ComboBox<AlgorithmChoice> algorithm;
+    @FXML private ComboBox<OutputFormatChoice> outputFormat;
     @FXML private Label outputLabel;
     @FXML private TextArea output;
 
@@ -28,6 +30,8 @@ public class TextHasherController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         inputLabel.setLabelFor(input);
         outputLabel.setLabelFor(output);
+        input.textProperty().addListener((observable, oldValue, newValue) -> updateOutputText());
+
         algorithm.setItems(FXCollections.observableArrayList(
                 AlgorithmChoice.secure("SHA-512"),
                 AlgorithmChoice.secure("SHA-384"),
@@ -38,11 +42,25 @@ public class TextHasherController implements Initializable {
         ));
         algorithm.setButtonCell(new AlgorithmListCell());
         algorithm.setCellFactory(param -> new AlgorithmListCell());
-        input.textProperty().addListener((observable, oldValue, newValue) -> updateOutputText());
         algorithm.valueProperty().addListener((observable, oldValue, newValue) -> {
             hashDelegate.setAlgorithm(newValue.algorithm);
             updateOutputText();
+            input.requestFocus();
         });
+
+        outputFormat.setItems(FXCollections.observableArrayList(
+                new OutputFormatChoice(HashDelegate.OutputFormat.HexString, "Hex String"),
+                new OutputFormatChoice(HashDelegate.OutputFormat.Base64, "Base 64"),
+                new OutputFormatChoice(HashDelegate.OutputFormat.JavaFxByteStringConverter, ByteStringConverter.class.getCanonicalName())
+        ));
+        outputFormat.setButtonCell(new OutputFormatListCell());
+        outputFormat.setCellFactory(param -> new OutputFormatListCell());
+        outputFormat.valueProperty().addListener((observable, oldValue, newValue) -> {
+            hashDelegate.setOutputFormat(newValue.outputFormat);
+            updateOutputText();
+            input.requestFocus();
+        });
+
         output.setFont(Font.font(java.awt.Font.MONOSPACED));
         output.setOnMouseClicked(event -> output.selectAll());
     }
@@ -80,6 +98,18 @@ public class TextHasherController implements Initializable {
         }
     }
 
+    private static class OutputFormatListCell extends ListCell<OutputFormatChoice> {
+        @Override
+        protected void updateItem(OutputFormatChoice item, boolean empty) {
+            super.updateItem(item, empty);
+            if (item != null) {
+                setText(item.label);
+            } else {
+                setText("");
+            }
+        }
+    }
+
     private static class AlgorithmChoice {
 
         private final String algorithm;
@@ -96,6 +126,17 @@ public class TextHasherController implements Initializable {
 
         private static AlgorithmChoice insecure(String algorithm) {
             return new AlgorithmChoice(algorithm, false);
+        }
+    }
+
+    private static class OutputFormatChoice {
+
+        private final HashDelegate.OutputFormat outputFormat;
+        private final String label;
+
+        private OutputFormatChoice(HashDelegate.OutputFormat outputFormat, String label) {
+            this.outputFormat = outputFormat;
+            this.label = label;
         }
     }
 }
