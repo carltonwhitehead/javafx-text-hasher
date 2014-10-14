@@ -1,13 +1,18 @@
 package texthasher;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.converter.ByteStringConverter;
+import texthasher.domain.AlgorithmChoice;
+import texthasher.domain.OutputFormatChoice;
+import texthasher.ui.control.AlgorithmChoiceListCell;
+import texthasher.ui.control.OutputFormatChoiceListCell;
 
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
@@ -27,6 +32,8 @@ public class TextHasherController implements Initializable {
 
     private GenerateHashTask generateHashTask;
 
+    private StringProperty hash = new SimpleStringProperty();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         inputLabel.setLabelFor(input);
@@ -41,10 +48,10 @@ public class TextHasherController implements Initializable {
                 AlgorithmChoice.insecure("SHA-1"),
                 AlgorithmChoice.insecure("MD5")
         ));
-        algorithm.setButtonCell(new AlgorithmListCell());
-        algorithm.setCellFactory(param -> new AlgorithmListCell());
+        algorithm.setButtonCell(new AlgorithmChoiceListCell());
+        algorithm.setCellFactory(param -> new AlgorithmChoiceListCell());
         algorithm.valueProperty().addListener((observable, oldValue, newValue) -> {
-            hashDelegate.setAlgorithm(newValue.algorithm);
+            hashDelegate.setAlgorithm(newValue.getAlgorithm());
             updateOutputText();
             input.requestFocus();
         });
@@ -54,10 +61,10 @@ public class TextHasherController implements Initializable {
                 new OutputFormatChoice(HashDelegate.OutputFormat.Base64, "Base 64"),
                 new OutputFormatChoice(HashDelegate.OutputFormat.JavaFxByteStringConverter, ByteStringConverter.class.getSimpleName())
         ));
-        outputFormat.setButtonCell(new OutputFormatListCell());
-        outputFormat.setCellFactory(param -> new OutputFormatListCell());
+        outputFormat.setButtonCell(new OutputFormatChoiceListCell());
+        outputFormat.setCellFactory(param -> new OutputFormatChoiceListCell());
         outputFormat.valueProperty().addListener((observable, oldValue, newValue) -> {
-            hashDelegate.setOutputFormat(newValue.outputFormat);
+            hashDelegate.setOutputFormat(newValue.getOutputFormat());
             updateOutputText();
             input.requestFocus();
         });
@@ -82,66 +89,6 @@ public class TextHasherController implements Initializable {
         });
         progress.setVisible(true);
         new Thread(generateHashTask).start();
-    }
-
-    private static class AlgorithmListCell extends ListCell<AlgorithmChoice> {
-        @Override
-        protected void updateItem(AlgorithmChoice item, boolean empty) {
-            super.updateItem(item, empty);
-            if (item != null) {
-                if (item.secure) {
-                    setText(item.algorithm);
-                    setTextFill(Color.BLACK);
-                } else {
-                    setText(item.algorithm + " (INSECURE)");
-                    setTextFill(Color.FIREBRICK);
-                }
-            } else {
-                setText("");
-            }
-        }
-    }
-
-    private static class OutputFormatListCell extends ListCell<OutputFormatChoice> {
-        @Override
-        protected void updateItem(OutputFormatChoice item, boolean empty) {
-            super.updateItem(item, empty);
-            if (item != null) {
-                setText(item.label);
-            } else {
-                setText("");
-            }
-        }
-    }
-
-    private static class AlgorithmChoice {
-
-        private final String algorithm;
-        private final boolean secure;
-
-        private AlgorithmChoice(String algorithm, boolean secure) {
-            this.algorithm = algorithm;
-            this.secure = secure;
-        }
-
-        private static AlgorithmChoice secure(String algorithm) {
-            return new AlgorithmChoice(algorithm, true);
-        }
-
-        private static AlgorithmChoice insecure(String algorithm) {
-            return new AlgorithmChoice(algorithm, false);
-        }
-    }
-
-    private static class OutputFormatChoice {
-
-        private final HashDelegate.OutputFormat outputFormat;
-        private final String label;
-
-        private OutputFormatChoice(HashDelegate.OutputFormat outputFormat, String label) {
-            this.outputFormat = outputFormat;
-            this.label = label;
-        }
     }
 
     private class GenerateHashTask extends Task<String> {
