@@ -54,7 +54,6 @@ public class TextHasherController implements Initializable {
         algorithm.valueProperty().addListener((observable, oldValue, newValue) -> {
             hashDelegate.setAlgorithm(newValue.getAlgorithm());
             updateOutputText();
-            input.requestFocus();
         });
 
         outputFormat.setItems(FXCollections.observableArrayList(
@@ -67,7 +66,6 @@ public class TextHasherController implements Initializable {
         outputFormat.valueProperty().addListener((observable, oldValue, newValue) -> {
             hashDelegate.setOutputFormat(newValue.getOutputFormat());
             updateOutputText();
-            input.requestFocus();
         });
 
         output.setFont(Font.font(java.awt.Font.MONOSPACED));
