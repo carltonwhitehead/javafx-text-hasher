@@ -1,4 +1,4 @@
-package texthasher;
+package texthasher.ui.controller;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.text.Font;
 import javafx.util.converter.ByteStringConverter;
+import texthasher.delegate.HashDelegate;
 import texthasher.domain.AlgorithmChoice;
 import texthasher.domain.OutputFormatChoice;
 import texthasher.ui.control.AlgorithmChoiceListCell;

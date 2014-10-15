@@ -1,4 +1,4 @@
-package texthasher;
+package texthasher.delegate;
 
 import javafx.util.converter.ByteStringConverter;
 import sun.misc.BASE64Encoder;

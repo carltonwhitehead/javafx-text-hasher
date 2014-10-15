@@ -1,6 +1,6 @@
 package texthasher.domain;
 
-import texthasher.HashDelegate;
+import texthasher.delegate.HashDelegate;
 
 /**
 * Represents a hash output format choice available to the user
