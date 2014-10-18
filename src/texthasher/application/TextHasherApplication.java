@@ -1,10 +1,8 @@
 package texthasher.application;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import texthasher.controller.TextHasherController;
 
 import java.util.ResourceBundle;
 
@@ -15,14 +13,9 @@ public class TextHasherApplication extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
-        GridPane root = FXMLLoader.load(
-                getClass().getResource("/texthasher/ui/fxml/TextHasher.fxml"),
-                getResourceBundle()
-        );
+    public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Text Hasher");
-        primaryStage.setResizable(true);
-        primaryStage.setScene(new Scene(root, 600, 250));
+        primaryStage.setScene(TextHasherController.newScene(this));
         primaryStage.show();
     }
 

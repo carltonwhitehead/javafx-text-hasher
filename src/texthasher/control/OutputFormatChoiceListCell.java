@@ -1,4 +1,4 @@
-package texthasher.ui.control;
+package texthasher.control;
 
 import javafx.scene.control.ListCell;
 import texthasher.domain.OutputFormatChoice;

@@ -1,19 +1,11 @@
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.GridPane?>
-
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.ProgressIndicator?>
-<GridPane fx:controller="texthasher.ui.controller.TextHasherController"
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<GridPane fx:controller="texthasher.controller.TextHasherController"
           xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10">
     <padding><Insets top="10" bottom="10" left="10" right="10" /></padding>
-    <Label
+    <Text
         fx:id="inputLabel"
         text="%input_label"
         GridPane.columnIndex="0" GridPane.rowIndex="0"/>
@@ -23,9 +15,13 @@
         promptText="%input_textarea_prompt"
         prefWidth="Infinity"
         GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS"
-        wrapText="true"/>
+        wrapText="false"/>
 
-    <Label
+    <Text
+        fx:id="inputLength"
+        GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.halignment="RIGHT" />
+
+    <Text
         fx:id="outputLabel"
         text="%output_label"
         GridPane.columnIndex="0" GridPane.rowIndex="2"/>
@@ -35,7 +31,7 @@
 
         <ProgressIndicator
             fx:id="progress"
-            visible="false"/>
+                GridPane.vgrow="NEVER"/>
         <ComboBox
             fx:id="algorithm"
             promptText="%algorithm_combobox_prompt" />
@@ -47,7 +43,7 @@
     <TextArea
         fx:id="output"
         editable="false"
-        wrapText="true"
+        wrapText="false"
         prefWidth="Infinity"
         GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="NEVER"/>
 
